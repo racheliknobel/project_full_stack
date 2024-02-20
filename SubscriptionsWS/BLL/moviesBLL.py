@@ -1,5 +1,6 @@
 from pymongo import MongoClient
-from bson import objectid
+from bson import ObjectId
+
 
 
 
@@ -11,13 +12,21 @@ class Movies_db:
         self.__collection = self.__db["movies"]
 
     def get_all_movies(self):
-        movies = self.__collection.find({})
+        movies = list(self.__collection.find({}))
         return movies
     
-    def get_all_movie_by_id(self):
-        movie = self.__collection.find_one({"_id": objectid(id)})
+    def get_movie_by_id(self, id):
+        movie = self.__collection.find_one({"_id": ObjectId(id)})
         return movie
-    
-    def create_all_movies(self,movies):
-        msg = self.__collection.insert_many(movies)
+     
+    def create_movie(self,movie):
+        msg = self.__collection.insert_one(movie)
         return f"create_all_movies {msg}" 
+    
+    def update_movie(self,id, movie):
+        msg = self.__collection.update_one({"_id": ObjectId(id)},{"$set": movie})
+        return f"Update movie {msg}"
+    
+    def delete_movie(self,id):
+        msg = self.__collection.delete_one({"_id": ObjectId(id)})
+        return f"Delete movie {msg}"

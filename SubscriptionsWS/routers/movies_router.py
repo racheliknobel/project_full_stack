@@ -11,11 +11,25 @@ def gel_all():
     return jsonify(all_movies)
 
 
-
-
+@movies.route("/<id>", methods=["GET"])
+def get_one(id):
+    movie = movies_BLL.get_movie_by_id(id)
+    return jsonify(movie)
 
 @movies.route("/", methods=["POST"])
-def create_all():
-    new_movies = request.json()
-    status = movies_BLL.create_all_movies(new_movies)
+def create_one():
+    movie = request.json
+    status = movies_BLL.create_movie(movie)
+    return jsonify({"status": status})
+
+@movies.route("/<id>", methods=["PUT"])
+def update_movie(id):
+    new_movie = request.json
+    status = movies_BLL.update_movie(id, new_movie)
+    return jsonify({"status": status})
+
+
+@movies.route("/<id>", methods=["DELETE"])
+def delete_movie(id):
+    status = movies_BLL.delete_movie(id)
     return jsonify({"status": status})
