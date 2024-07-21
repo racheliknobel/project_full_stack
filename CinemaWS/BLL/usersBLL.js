@@ -1,120 +1,127 @@
+const jwt = require('jsonwebtoken')
+const bcrypt = require('bcryptjs')
 const usersFile = require('../DAL/usersFileDAL')
 const permissionsFile = require('../DAL/permissionsFileDAL')
 const { User } = require('../DAL/modelUsersDB')
 
 
-const getAllUsers = async () => {
-    const users = await usersFile.getUsers()
-    const permissions = await permissionsFile.getData()
-    const usersDB = await User.find({})
-    console.log(usersDB)
-    const finalUsers = []
+const loginUser = async (userName, password) => {
 
-    users.forEach(async (user) => {
-        const id = user.id
-        // const userDB = usersDB.find(u => u._id == id)
-      
-        // const userName = userDB.userName
-        // const password = userDB.password
+    //Checking if the user exists
+    try {
+        const user = await User.findOne({ "userName": userName })
+        if (user && (await bcrypt.compare(password, user.password))) {
 
-        
-        const firstName = user.firstName
-        const lastName = user.lastName
-        const createdDate = user.createdDate
-        const sessionTimeOut = user.sessionTimeOut
+            //Finding the information about the user
+            const usersData = await usersFile.getUsers()
+            console.log(usersData)
+            const userData = usersData.find(userData => userData.id == user._id)
+            const firstName = userData.firstName
+            const lastName = userData.lastName
+            const createdDate = userData.createdDate
+            const sessionTimeOut = userData.sessionTimeOut
 
-        
+            const permissions = await permissionsFile.getData()
+            const permissionsById = permissions.find(userPerm => userPerm.id == user._id)
+            const permissionsData = permissionsById.permissions
 
-        const permissionsById = permissions.find(u => u.id == id)
-        const permissionsData = permissionsById.permissions
+            //Returning information about the user
+            return {
+                statusUser: true,
+                data: {
+                    id: user._id,
+                    userName: userName,
+                    firstName: firstName,
+                    lastName: lastName,
+                    createdDate: createdDate,
+                    sessionsTimeOut: sessionTimeOut,
+                    permissions: permissionsData,
+                    token: generateToken(user._id)
+                } }
+        }
+        else {
+            return {
+                statusUser: false,
+                data: "no user found"
+            }
+        }
 
-
-        finalUsers.push({
-            "id": id,
-            // "userName": userName,
-            // "password": password,
-            "firstName": firstName,
-            "lastName": lastName,
-            "createdDate": createdDate,
-            "sessionsTimeOut": sessionTimeOut,
-            "permissions": permissionsData
-        })
-    });
-
-    return finalUsers
-
-}
-
-const getUserById = async (id) => {
-    const users = await usersFile.getUsers()
-    const user = users.find(user => user.id == id)
-
-
-    const firstName = user.firstName
-    const lastName = user.lastName
-    const createdDate = user.createdDate
-    const sessionTimeOut = user.sessionTimeOut
-
-
-
-    const permissions = await permissionsFile.getData()
-    const permissionsById = permissions.find(user => user.id == id)
-    const permissionsData = permissionsById.permissions
-
-
-    const userDB = await User.findOne({"_id": id})
-    console.log(userDB)
-    const userName = userDB.userName
-    const password = userDB.password
-    console.log(password)
-    
-
-    return {
-        "id": id,
-        "userName": userName,
-        "password": password,
-        "firstName": firstName,
-        "lastName": lastName,
-        "createdDate": createdDate,
-        "sessionsTimeOut": sessionTimeOut,
-        "permissions": permissionsData
+    } catch (error) {
+        console.log(error)
+        return error
     }
-
 }
+
+// Generate JWT
+const generateToken = (id) => {
+    return jwt.sign({ id }, process.env.JWT_SECRET, {
+        expiresIn: '30d'
+    })
+}
+
 
 const createUser = async (user) => {
-    const newUserDB = { "userName": user.userName, "password": user.password }
-    await User.create(newUserDB)
+    try {
+        //Hash password
+        const salt = await bcrypt.genSalt(10)
+        const hashedPassword = await bcrypt.hash(user.password, salt)
+        const newUserDB = { "userName": user.userName, "password": hashedPassword }
+        await User.create(newUserDB)
+
+        const newId = await User.findOne({ "userName": user.userName, "password": hashedPassword })
 
 
-    const newId = User.findOne({"userName": newUserDB.userName, "password": newUserDB.password})
+        const newUserUsersFile = { "id": newId._id, "firstName": user.firstName, "lastName": user.lastName, "createdDate": new Date(2020, 2, 1), "sessionsTimeOut": user.sessionsTimeOut }
+        await usersFile.addUsers(newUserUsersFile)
 
+        const newUserPermissionsFile = { "id": newId._id, "permissions": user.permissions }
+        await permissionsFile.addData(newUserPermissionsFile)
 
+        return "created successfully"
+    }
+    catch (error) {
+        console.log(error)
+        return error
+    }
+}
 
-    
+const updateUser = async (id, user) => {
+    try {
+        const salt = await bcrypt.genSalt(10)
+        const hashedPassword = await bcrypt.hash(user.password, salt)
+        const newUserDB = { "userName": user.userName, "password": hashedPassword }
 
-    const newUserUsersFile = { "id": newId._id, "firstName": user.firstName, "lastName": user.lastName, "createdDate": new Date(), "sessionsTimeOut": user.sessionsTimeOut }
-    await usersFile.addUsers(newUserUsersFile)
+        await User.findByIdAndUpdate(id, newUserDB)
 
-    const newUserPermissionsFile = {"id": newId._id, "permissions": user.permissions }
-    await permissionsFile.addData(newUserPermissionsFile)
+        const newUserUsersFile = { "id": id, "firstName": user.firstName, "lastName": user.lastName, "createdDate": new Date(), "sessionsTimeOut": user.sessionsTimeOut }
+        await usersFile.updateUser(id, newUserUsersFile)
 
-    return "created successfully"
+        const newUserPermissionsFile = { "id": id, "permissions": user.permissions }
+        await permissionsFile.updateData(id, newUserPermissionsFile)
 
+        return "updated successfully"
+    }
 
+    catch (error) {
+        console.log(error)
+        return error
+    }
 }
 
 const deleteUser = async (id) => {
-    try{await usersFile.deleteUser(id)
-    await permissionsFile.deleteData(id)
-    await User.findOneAndDelete({ _id: id })
+    try {
+        await usersFile.deleteUser(id)
+        await permissionsFile.deleteData(id)
+        await User.findOneAndDelete({ _id: id })
 
-    return "deleted successfully"}
-    catch(error){
+        return "deleted successfully"
+    }
+    catch (error) {
         console.log(error)
+        return error
     }
 }
 
 
 
-module.exports = { getAllUsers, getUserById, createUser, deleteUser }
+module.exports = { loginUser, createUser, updateUser, deleteUser }

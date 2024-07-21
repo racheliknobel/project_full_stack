@@ -24,7 +24,26 @@ const addData = async(newUser)=>{
       }
 }
 
-deleteData = async(id)=>{
+const updateData = async (id, newUser) => {
+  try {
+      const {permissions} = await jsonfile.readFile(jsonfilePath)
+      const index = permissions.findIndex(user => user.id === id)
+
+      permissions[index] = newUser
+      await jsonfile.writeFile(jsonfilePath, {"permissions": permissions});
+
+      return "updated successfully";
+
+   
+  }
+  catch (error) {
+      console.error('Error:', error);
+      return "error occurred";
+  }
+}
+
+
+const deleteData = async(id)=>{
     try {const {permissions} = await jsonfile.readFile(jsonfilePath)
 
     const newPermissions = permissions.filter(user => user.id !== id)
@@ -40,4 +59,4 @@ deleteData = async(id)=>{
 
 
 
-module.exports = {getData, addData, deleteData}
+module.exports = {getData, addData,updateData, deleteData}
