@@ -18,7 +18,9 @@ class JSONEncoder(json.JSONEncoder):
 
 app = Flask(__name__)
 
-app.json_encoder = JSONEncoder
+app.json = {
+    'encoder': JSONEncoder
+} 
 
 CORS(app)
 

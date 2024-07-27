@@ -27,7 +27,7 @@ const loginUser = async (userName, password) => {
 
             //Returning information about the user
             return {
-                statusUser: true,
+                isAuthenticated: true,
                 data: {
                     id: user._id,
                     userName: userName,
@@ -37,11 +37,12 @@ const loginUser = async (userName, password) => {
                     sessionsTimeOut: sessionTimeOut,
                     permissions: permissionsData,
                     token: generateToken(user._id)
-                } }
+                }
+            }
         }
         else {
             return {
-                statusUser: false,
+                isAuthenticated: false,
                 data: "no user found"
             }
         }
