@@ -69,7 +69,7 @@ const createUser = async (user) => {
         const newUserDB = { "userName": user.userName, "password": hashedPassword }
         await User.create(newUserDB)
 
-        const newId = await User.findOne({ "userName": user.userName, "password": hashedPassword })
+        const newId = await User.findOne({ "userName": user.userName, "password": hashedPassword, token: generateToken(user._id) })
 
 
         const newUserUsersFile = { "id": newId._id, "firstName": user.firstName, "lastName": user.lastName, "createdDate": new Date(2020, 2, 1), "sessionsTimeOut": user.sessionsTimeOut }

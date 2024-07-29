@@ -9,9 +9,9 @@ export default function Details(props) {
     const navigate = useNavigate()
     const dispatch = useDispatch()
 
-    const moviesURL = "http://127.0.0.1:5000/subscriptions/movies"
-    const membersURL = "http://127.0.0.1:5000/subscriptions/members"
-    const usersURL = "http://127.0.0.1:5000/users"
+    const moviesURL = "http://127.0.0.1:8000/subscriptions/movies"
+    const membersURL = "http://127.0.0.1:8000/subscriptions/members"
+    const usersURL = "http://127.0.0.1:8000/users"
 
     const permissions = [
         "View Subscriptions",

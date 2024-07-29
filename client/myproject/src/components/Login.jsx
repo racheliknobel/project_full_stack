@@ -11,26 +11,39 @@ import axios from "axios"
 
 export default function Login() {
 
-  const navigate = useNavigate()
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-  const [{ userName, password }, setUser] = useState({})
+  const [user, setUser] = useState({ userName: '', password: '' });
 
-  const login = async (event) => {
-    event.preventDefault()
+  const [loginUser, setLoginUser] = useState(true)
 
 
-    const userExists = await axios.post(`http://127.0.0.1:8000/users/login`, { userName, password })
+  const login = async (e) => {
+  
+    e.preventDefault(); // כדי למנוע ריענון של העמוד
+    const { userName, password } = user;
 
-    if (userExists.data.isAuthenticated == true) {
-    
-      dispatch({ type: "USER", payload: userExists.data.data })
-      console.log(`User logged in`)
-      navigate("/mainPage")
-    } else {
-      alert("Login failed: username or password is incorrect")
+    try {
+      const userExists = await axios.post(`http://127.0.0.1:8000/users/login`, { userName, password });
+
+      if (userExists.data.isAuthenticated) {
+        console.log(`User logged in`);
+
+        dispatch({ type: "USER", payload: userExists.data });
+
+        localStorage.setItem('token', userExists.data.data.token);
+        navigate("/mainPage");
+      } else {
+        setLoginUser(false);
+        console.error('Login failed: Invalid credentials');
+
+      }
+    } catch (error) {
+      
+      console.error('Login failed:');
     }
-  }
+  };
 
   return (
     <div>
@@ -39,18 +52,18 @@ export default function Login() {
       <form>
         <Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
           {/* <AccountCircle sx={{ color: 'action.active', mr: 1, my: 0.5 }} /> */}
-          <TextField id="input-with-sx" label="UserName" variant="standard" required onChange={e => setUser({ userName: e.target.value, password })} />
+          <TextField id="input-with-sx" label="UserName" variant="standard" required onChange={e => setUser({ ...user, userName: e.target.value })} />
         </Box>
         <br></br>
         <Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
           {/* <AccountCircle sx={{ color: 'action.active', mr: 1, my: 0.5 }} /> */}
-          <TextField id="input-with-sx" label="Password" variant="standard" required onChange={e => setUser({ userName, password: e.target.value })} />
+          <TextField id="input-with-sx" label="Password" variant="standard" required onChange={e => setUser({ ...user, password: e.target.value })} />
         </Box>
 
         <br></br><br></br>
 
-        <Button variant="contained" onClick={login}>Login</Button>
-
+        <Button variant="contained" onClick={login}>Login</Button><br></br>
+        {loginUser == true ? "" : <h4> username or password is incorrect</h4>}
       </form>
 
       <br></br><br></br>

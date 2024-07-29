@@ -14,7 +14,7 @@ export default function HomePage() {
   return (
     <div>
       <Routes>
-        <Route path="" element={<Login />} />
+        <Route path='/' element={<Login />} />
         <Route path={'/createAccount'} element={<CreateAccount />} />
 
         <Route path={'/mainPage'} element={<MainPage />} >

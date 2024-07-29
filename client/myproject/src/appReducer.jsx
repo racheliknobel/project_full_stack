@@ -6,13 +6,14 @@ export default function appReducer(store = {}, action) {
     switch (action.type) {
 
         case 'USER':
-            console.log(payload)
+            
             return {
+                
                 user: payload
             };
 
         case 'LOAD':
-            console.log(payload)
+           
             return {
                 ...store,
                 ...payload

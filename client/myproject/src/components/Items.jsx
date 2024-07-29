@@ -1,120 +1,105 @@
-import React, { useState } from 'react'
-import { useSelector } from 'react-redux'
-import { Link, useParams } from 'react-router-dom'
-import Item from './Item'
+import React, { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
-
+import Item from './Item'; // Ensure you have the Item component imported correctly
 
 export default function Items({ displayMovies, displayMembers, displayUsers }) {
-    const [searchResults, setSearchResults] = useState([]);
+    const [searchResults, setSearchResults] = useState({ movies: [], members: [], users: [] });
 
-    const movies = useSelector((store) => displayMovies ? store.movies : []);
-    const members = useSelector((store) => displayMembers ? store.members : []);
-    const users = useSelector((store) => displayUsers ? store.users : []);
+    const movies = displayMovies ? useSelector((store) => store.movies) : [];
+    const members = displayMembers ? useSelector((store) => store.members) : [];
+    const users = displayUsers ? useSelector((store) => store.users) : [];
 
-    const user = useSelector((store) => store.user);
+    useEffect(() => {
+        setSearchResults({
+            movies: movies,
+            members: members,
+            users: users
+        });
+    }, [movies, members, users]);
 
-    // console.log(params.id);
-
-    const search = (e, entity) => {
-        const searchQuery = entity?.filter((ent) => ent.name.toLowerCase().includes(e.toLowerCase()))
-        setSearchResults(searchQuery)
-    }
+    const search = (e, entity, entityType) => {
+        const searchQuery = entity.filter((ent) => ent.name.toLowerCase().includes(e.toLowerCase()));
+        setSearchResults((prevResults) => ({
+            ...prevResults,
+            [entityType]: searchQuery,
+        }));
+    };
 
     return (
         <div>
+            <br />
 
-            <br></br>
+            {displayMovies && (
+                <div>
+                    <Box
+                        sx={{
+                            '& > :not(style)': { m: 1, width: '25ch' },
+                        }}
+                        noValidate
+                        autoComplete="off"
+                    >
+                        <TextField
+                            id="outlined-basic"
+                            label="Search"
+                            variant="outlined"
+                            onChange={(e) => { search(e.target.value, movies, 'movies'); }}
+                        />
+                    </Box>
 
+                    <br /><br />
 
+                    {searchResults.movies.length > 0 ? searchResults.movies.map((movie) => (
+                        <Item key={movie._id} movieData={movie} />
+                    )).reverse() : movies.map((movie) => (
+                        <Item key={movie._id} movieData={movie} />
+                    )).reverse()}
+                </div>
+            )}
 
-            {displayMovies &&
-                (
-                    <div>
+            {displayMembers && (
+                <div>
+                    <Box
+                        sx={{
+                            '& > :not(style)': { m: 1, width: '25ch' },
+                        }}
+                        noValidate
+                        autoComplete="off"
+                    >
+                        <TextField
+                            id="outlined-basic"
+                            label="Search"
+                            variant="outlined"
+                            onChange={(e) => { search(e.target.value, members, 'members'); }}
+                        />
+                    </Box>
+                    <br />
+                    <Link to={'/mainPage/addMember'}><button>Add Member</button></Link>
+                    <br />
 
-                        <Box
-                            // component="form"
-                            sx={{
-                                '& > :not(style)': { m: 1, width: '25ch' },
-                            }}
-                            noValidate
-                            autoComplete="off"
-                        >
-                            <TextField
-                                id="outlined-basic"
-                                label="Search"
-                                variant="outlined"
-                                onChange={(e) => { search(e.target.value, movies) }} />
-                        </Box>
+                    {searchResults.members?.length > 0 ? searchResults.members.map((member) => (
+                        <Item key={member._id} memberData={member} />
+                    )).reverse() : members?.map((member) => (
+                        <Item key={member._id} memberData={member} />
+                    )).reverse()}
+                </div>
+            )}
 
-                        <br></br><br></br>
+            {displayUsers && (
+                <div>
+                    <Link to={'/mainPage/addUser'}><button>Add User</button></Link>
+                    <br />
 
-                        {/* {user.data.permissions?.includes("Create Movies")
-                            ? < Link to={'/mainPage/addMovie'}><button >Add Movie</button><br></br></Link>
-                            : null} */}
-
-                        {(searchResults.length > 0
-                            ? searchResults
-                            : movies)
-                            ?.map((movie) => <Item key={movie._id} movieData={movie} />).reverse()}
-
-                    </div>
-                )
-            }
-
-
-            {displayMembers &&
-                (
-                    <div>
-
-                        <Box
-                            // component="form"
-                            sx={{
-                                '& > :not(style)': { m: 1, width: '25ch' },
-                            }}
-                            noValidate
-                            autoComplete="off"
-                        >
-                            <TextField
-                                id="outlined-basic"
-                                label="Search"
-                                variant="outlined"
-                                onChange={(e) => { search(e.target.value, members) }} />
-                        </Box>
-                        <br></br>
-
-                        < Link to={'/mainPage/addMember'}><button >Add Member</button><br></br></Link>
-
-                        {(searchResults.length > 0
-                            ? searchResults
-                            : members)
-                            ?.map((member) => <Item key={member._id} memberData={member} />).reverse()}
-
-                    </div>
-                )
-            }
-
-
-            {displayUsers &&
-                (
-                    <div>
-
-                        {/* search <input type='text' onChange={(e) => { search(e.target.value, users) }} /> */}
-
-                        {/* <br></br><br></br> */}
-
-                        < Link to={'/mainPage/addUser'}><button >Add User</button><br></br></Link>
-
-                        {(searchResults.length > 0
-                            ? searchResults
-                            : users)
-                            ?.map((user) => <Item key={user._id} userData={user} />).reverse()}
-
-                    </div>
-                )
-            }
-
-        </div >
-    )
+                    {searchResults.users.length > 0 ? searchResults.users.map((user) => (
+                        <Item key={user._id} userData={user} />
+                    )).reverse() : users?.map((user) => (
+                        <Item key={user._id} userData={user} />
+                    )).reverse()}
+                </div>
+            )}
+        </div>
+    );
 }
+

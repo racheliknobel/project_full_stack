@@ -19,10 +19,11 @@ export default function Item({ movieData, memberData, userData }) {
     const navigate = useNavigate()
 
     const user = useSelector((store) => store.user)
+    
 
-    const moviesURL = "http://127.0.0.1:5000/subscriptions/movies"
-    const membersURL = "http://127.0.0.1:5000/subscriptions/members"
-    const usersURL = "http://127.0.0.1:5000/users"
+    const moviesURL = "http://127.0.0.1:8000/subscriptions/movies"
+    const membersURL = "http://127.0.0.1:8000/subscriptions/members"
+    
 
 
     //delete 
@@ -42,7 +43,7 @@ export default function Item({ movieData, memberData, userData }) {
                     <Card sx={{ maxWidth: 345, margin: '30px' }} >
                         <CardMedia
                             component="img"
-                            // alt="green iguana"
+                            alt="green iguana"
                             height="50%"
                             image={movieData.image}
                         />
@@ -58,13 +59,13 @@ export default function Item({ movieData, memberData, userData }) {
                             </Typography>
                         </CardContent>
                         <CardActions>
-                            {user.permissions?.includes("Update Movies") ?
+                           {user.permissions?.includes("Update Movies") ?
                                 < Link to={`/mainPage/editMovie/${movieData._id}`}><button>Edit</button></Link>
                                 : null}
                             &nbsp;
                             {user.permissions?.includes("Delete Movies")
                                 ? <button onClick={() => deleteOne(moviesURL, "movies", movieData)}>Delete</button>
-                                : null}
+                                : null} 
                         </CardActions>
                         <Subscriptions movieId={movieData._id} />
                     </Card>
@@ -88,7 +89,7 @@ export default function Item({ movieData, memberData, userData }) {
                                 Email:  {memberData.email}
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
-                                City:  {memberData.city}
+                                City:  {memberData.address.city}
                             </Typography>
                         </CardContent>
                         <CardActions>

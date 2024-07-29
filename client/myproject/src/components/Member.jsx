@@ -18,7 +18,7 @@ export default function Member({ memberData }) {
     //delete the member
     const deleteMember = async () => {
 
-        await deleteItem(`http://127.0.0.1:5000/subscriptions/members/${memberData._id}`)
+        await deleteItem(`http://127.0.0.1:8000/subscriptions/members/${memberData._id}`)
 
         dispatch({ type: "DELETE", payload: memberData, entity: "members" });
 
