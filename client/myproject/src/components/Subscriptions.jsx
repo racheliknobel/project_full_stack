@@ -69,7 +69,7 @@ export default function Subscriptions(props) {
             }]
         };
 
-        const result = await addItem("http://127.0.0.1:5000/subscriptions/subscriptions", subscription);
+        const result = await addItem("http://127.0.0.1:8000/subscriptions/subscriptions", subscription);
         console.log(noSubscriptions);
 
         noSubscriptions

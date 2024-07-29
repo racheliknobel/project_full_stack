@@ -6,20 +6,18 @@ import TextField from '@mui/material/TextField';
 import Item from './Item'; // Ensure you have the Item component imported correctly
 
 export default function Items({ displayMovies, displayMembers, displayUsers }) {
-    const [searchResults, setSearchResults] = useState({ movies: [], members: [], users: [] });
+    const [searchResults, setSearchResults] = useState([]);
 
     const movies = displayMovies ? useSelector((store) => store.movies) : [];
     const members = displayMembers ? useSelector((store) => store.members) : [];
     const users = displayUsers ? useSelector((store) => store.users) : [];
 
-    useEffect(() => {
-        setSearchResults({
-            movies: movies,
-            members: members,
-            users: users
-        });
-    }, [movies, members, users]);
 
+    // const search = (e, entity) => {
+    //     const searchQuery = entity?.filter((ent) => ent.name.toLowerCase().includes(e.toLowerCase()))
+    //     setSearchResults(searchQuery)
+    // }
+    // console.log(searchResults)
     const search = (e, entity, entityType) => {
         const searchQuery = entity.filter((ent) => ent.name.toLowerCase().includes(e.toLowerCase()));
         setSearchResults((prevResults) => ({
@@ -45,15 +43,15 @@ export default function Items({ displayMovies, displayMembers, displayUsers }) {
                             id="outlined-basic"
                             label="Search"
                             variant="outlined"
-                            onChange={(e) => { search(e.target.value, movies, 'movies'); }}
+                            onChange={(e) => { search(e.target.value, movies, "movies"); }}
                         />
                     </Box>
 
                     <br /><br />
 
-                    {searchResults.movies.length > 0 ? searchResults.movies.map((movie) => (
+                    {searchResults.movies?.length > 0 ? searchResults.movies.map((movie) => (
                         <Item key={movie._id} movieData={movie} />
-                    )).reverse() : movies.map((movie) => (
+                    )).reverse() : movies?.map((movie) => (
                         <Item key={movie._id} movieData={movie} />
                     )).reverse()}
                 </div>

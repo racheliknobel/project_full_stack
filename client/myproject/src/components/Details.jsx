@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { addItem, updateItem } from '../utils';
+import axios from 'axios';
 
 export default function Details(props) {
 
@@ -64,6 +64,7 @@ export default function Details(props) {
 
 
     //add item
+    
     const add = async (event, url, entity) => {
         event.preventDefault(); // Prevent default form submission
 

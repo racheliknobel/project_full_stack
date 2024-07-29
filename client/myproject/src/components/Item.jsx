@@ -19,11 +19,11 @@ export default function Item({ movieData, memberData, userData }) {
     const navigate = useNavigate()
 
     const user = useSelector((store) => store.user)
-    
+
 
     const moviesURL = "http://127.0.0.1:8000/subscriptions/movies"
     const membersURL = "http://127.0.0.1:8000/subscriptions/members"
-    
+
 
 
     //delete 
@@ -45,7 +45,7 @@ export default function Item({ movieData, memberData, userData }) {
                             component="img"
                             alt="green iguana"
                             height="50%"
-                            image={movieData.image}
+                            image={movieData.image.medium}
                         />
                         <CardContent>
                             <Typography gutterBottom variant="h4" component="div">
@@ -59,22 +59,15 @@ export default function Item({ movieData, memberData, userData }) {
                             </Typography>
                         </CardContent>
                         <CardActions>
-                           {user.permissions?.includes("Update Movies") ?
-                                < Link to={`/mainPage/editMovie/${movieData._id}`}><button>Edit</button></Link>
-                                : null}
-                            &nbsp;
-                            {user.permissions?.includes("Delete Movies")
-                                ? <button onClick={() => deleteOne(moviesURL, "movies", movieData)}>Delete</button>
-                                : null} 
+
+                            < Link to={`/mainPage/editMovie/${movieData._id}`}><button>Edit</button></Link>
+
+                            <button onClick={() => deleteOne(moviesURL, "movies", movieData)}>Delete</button>
+
                         </CardActions>
                         <Subscriptions movieId={movieData._id} />
                     </Card>
-                    {/* <h2>{movieData.name}</h2>
-                    <h3>{movieData.premiered}</h3>
-                    <h4>Genres: {movieData.genres?.map((g) => `${g}, `)}</h4>
-                    <img src={movieData.image} style={{ width: '100px', height: "150px" }} />
-                    <br></br> */}
-
+        
                 </div>
                 : null}
 
@@ -93,14 +86,14 @@ export default function Item({ movieData, memberData, userData }) {
                             </Typography>
                         </CardContent>
                         <CardActions>
-                            {user.permissions?.includes("Update Movies") ?
+                            {/* {user.permissions?.includes("Update Movies") ?
                                 <Link to={`/mainPage/editMember/${memberData._id}`}><button>Edit</button></Link>
                                 : null}
                             &nbsp;
                             {user.permissions?.includes("Delete Movies")
                                 ? <button onClick={() => deleteOne(membersURL, "members", memberData)}>Delete</button>
 
-                                : null}
+                                : null} */}
                         </CardActions>
                         <Subscriptions displayMoviesWatched={true} memberId={memberData._id} />
                     </Card>
